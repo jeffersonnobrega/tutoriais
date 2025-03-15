@@ -6,7 +6,6 @@
 dotnet new webapi -n FinancialAPI
 cd FinancialAPI
 ```
-
 O comando `dotnet new webapi` cria um novo projeto Web API em .NET, enquanto `-n FinancialAPI` define o nome do projeto.
 
 ---
@@ -34,10 +33,10 @@ O **Model** representa os dados que serão armazenados no banco:
 ```csharp
 public class Expense
 {
-    public int Id { get; set; }
-    public string Description { get; set; }
-    public decimal Amount { get; set; }
-    public DateTime Date { get; set; }
+    public int Id { get; set; }  // Identificador único da despesa
+    public string Description { get; set; } // Descrição da despesa
+    public decimal Amount { get; set; } // Valor da despesa
+    public DateTime Date { get; set; } // Data da despesa
 }
 ```
 
@@ -52,7 +51,10 @@ using Microsoft.EntityFrameworkCore;
 
 public class FinancialDbContext : DbContext
 {
+    // Construtor que recebe opções de configuração do banco de dados
     public FinancialDbContext(DbContextOptions<FinancialDbContext> options) : base(options) { }
+    
+    // Representa a tabela de despesas no banco de dados
     public DbSet<Expense> Expenses { get; set; }
 }
 ```
@@ -67,31 +69,35 @@ A **Controller** expõe os endpoints da API:
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+// Define a rota base para esta API como "api/expenses"
 [Route("api/[controller]")]
 [ApiController]
 public class ExpensesController : ControllerBase
 {
     private readonly FinancialDbContext _context;
     
+    // Construtor que recebe o contexto do banco de dados via injeção de dependência
     public ExpensesController(FinancialDbContext context)
     {
         _context = context;
     }
 
     // GET: api/expenses
+    // Método para obter todas as despesas cadastradas no banco
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Expense>>> GetExpenses()
     {
-        return await _context.Expenses.ToListAsync();
+        return await _context.Expenses.ToListAsync(); // Retorna todas as despesas
     }
 
     // POST: api/expenses
+    // Método para adicionar uma nova despesa
     [HttpPost]
     public async Task<ActionResult<Expense>> PostExpense(Expense expense)
     {
-        _context.Expenses.Add(expense);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetExpenses), new { id = expense.Id }, expense);
+        _context.Expenses.Add(expense); // Adiciona a nova despesa ao contexto do banco
+        await _context.SaveChangesAsync(); // Salva as alterações no banco de dados
+        return CreatedAtAction(nameof(GetExpenses), new { id = expense.Id }, expense); // Retorna a despesa criada
     }
 }
 ```
@@ -103,7 +109,6 @@ public class ExpensesController : ControllerBase
 ```bash
 dotnet run
 ```
-
 A API estará disponível em `http://localhost:5000`.
 
 ---
@@ -135,7 +140,6 @@ az login
 az group create --name FinancialAPIGroup --location eastus
 az container create --resource-group FinancialAPIGroup --name financialapi --image seu-usuario/financial-api --dns-name-label financialapi --ports 80
 ```
-
 Acesse em `http://financialapi.eastus.azurecontainer.io`
 
 ---
